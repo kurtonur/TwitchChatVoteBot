@@ -6,6 +6,7 @@ using System.Linq;
 using MaterialSkin.Controls;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using System.Threading;
 
 namespace TwitchChatV
 {
@@ -18,6 +19,7 @@ namespace TwitchChatV
         public static List<string> paternlist = new List<string>();
         List<string> voters;
         showVote showit;
+        bool finis = false;
         
         public main()
         {
@@ -35,41 +37,46 @@ namespace TwitchChatV
             options.AddArguments("--lang=tr");
             browser = new ChromeDriver(service, options);
             js = (IJavaScriptExecutor)browser;
-            link.Text = kayit.link;
         }
 
 
-        public void connectChat(string s)
+        public bool connectChat(string s)
         {
-            try
-            {
-                browser.Navigate().GoToUrl(s);
+            if (s.Trim() != ""){
+                browser.Navigate().GoToUrl("https://www.twitch.tv/popout/" + s + "/chat");
+                return true;
             }
-            catch
+            else
             {
-                uyarilar("bos",0);
-            }
-            
+                uyarilar("Nickname Boş", 0);
+                return false;
+            }     
         }
 
         private void start_Click(object sender, EventArgs e)
         {
-            if(paterns.Items.Count !=0) {
-                showit = new showVote();
-
-                foreach (string item in paterns.Items)
+            finis = false;
+            if (paterns.Items.Count != 0)
+            {
+                if (connectChat(link.Text))
                 {
-                    keylist.Add(item, 0);
-                    paternlist.Add(item);
+                    showit = new showVote();
+                    foreach (string item in paterns.Items)
+                    {
+                        keylist.Add(item, 0);
+                        paternlist.Add(item);
+                    }
+                    Thread thread1 = new Thread(new ThreadStart(FunctionTH));
+                    thread1.Start();
+                    votetime.Start();
+                    uyarilar("Başladı", 2);
+                    toggle(1);
+                    showit.Show();
+                    
                 }
-                showit.Show();
-                connectChat(link.Text);
-                System.Threading.Thread.Sleep(2000);
-                votetime.Start();
-                uyarilar("Başladı",2);
-                toggle(1);
-
             }
+            else
+                uyarilar("Kelime Listesi Boş",0);
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -115,31 +122,42 @@ namespace TwitchChatV
 
         private void votetime_Tick(object sender, EventArgs e)
         {
-            IWebElement[] texts = browser.FindElementsByXPath("//*[@id=\"root\"]/div/div[1]/div/div/section/div/div[2]/div[2]/div[3]/div/div/div[@class=\"chat-line__message\"][position()>last()-15]").ToArray();
-          
-            
-            foreach (IWebElement item in texts)
-            {
-                
-                string[] temp = item.Text.Split(':');
-                if (!voters.Contains(temp[0].Trim()))
-                {
-                    if(temp[1].Trim().Length<20)
-                    if (keylist.ContainsKey(temp[1].Trim().ToLower()))
-                    {
-                        keylist[temp[1].Trim()] += 1;
-                        voters.Add(temp[0].Trim());
-                            ToplamVote++;
-                    }
-                }
-
-            }
             toplamoy.Text = "Toplam : " + ToplamVote.ToString();
             showit.change(ToplamVote);
+        }
+
+        void FunctionTH()
+        {
+            while (true)
+            {
+                if (finis) break; 
+                try
+                {
+                    IWebElement text = browser.FindElementByXPath("//*[@id=\"root\"]/div/div[1]/div/div/section/div/div[2]/div[2]/div[3]/div/div/div[@class=\"chat-line__message\"][last()]");
+                    string[] temp = text.Text.Split(':');
+                    if (!voters.Contains(temp[0].Trim()))
+                    {
+                        if (temp[1].Trim().Length < 20)
+                            if (keylist.ContainsKey(temp[1].Trim().ToLower()))
+                            {
+                                keylist[temp[1].Trim()] += 1;
+                                voters.Add(temp[0].Trim());
+                                ToplamVote++;
+                            }
+                    }
+                    //js.ExecuteScript("return document.getElementsByClassName(\"chat-line__message\")[0].remove()");
+                }
+                catch
+                {
+
+
+                }
+            }
         }
         
         private void materialFlatButton3_Click(object sender, EventArgs e)
         {
+            finis = true;
             votetime.Stop();
             uyarilar("Bitti", 2);
             keylist.Clear();
@@ -175,6 +193,22 @@ namespace TwitchChatV
             if (patern.TextLength > 20)
             {
                 patern.Text = patern.Text.Substring(0, 20);
+            }
+        }
+
+        private void patern_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
+        {
+            if (e.KeyValue == 13)
+            {
+                addpatern_Click(sender, e);
+            }
+        }
+
+        private void paterns_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
+        {
+            if (e.KeyValue == 8)
+            {
+                removepatern_Click(sender, e);
             }
         }
     }
