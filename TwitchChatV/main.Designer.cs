@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(main));
             this.materialSingleLineTextField1 = new MaterialSkin.Controls.MaterialSingleLineTextField();
             this.link = new MaterialSkin.Controls.MaterialSingleLineTextField();
             this.start = new MaterialSkin.Controls.MaterialFlatButton();
@@ -63,7 +64,7 @@
             // 
             this.link.Depth = 0;
             this.link.Font = new System.Drawing.Font("Microsoft Sans Serif", 13F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.link.Hint = "Link : https://www.twitch.tv/popout/{ChannelName}/chat";
+            this.link.Hint = "ChannelName";
             this.link.Location = new System.Drawing.Point(16, 85);
             this.link.MouseState = MaterialSkin.MouseState.HOVER;
             this.link.Name = "link";
@@ -111,6 +112,7 @@
             this.paterns.Name = "paterns";
             this.paterns.Size = new System.Drawing.Size(212, 124);
             this.paterns.TabIndex = 5;
+            this.paterns.KeyDown += new System.Windows.Forms.KeyEventHandler(this.paterns_KeyDown);
             // 
             // alert
             // 
@@ -171,6 +173,7 @@
             this.patern.Size = new System.Drawing.Size(199, 23);
             this.patern.TabIndex = 9;
             this.patern.UseSystemPasswordChar = false;
+            this.patern.KeyDown += new System.Windows.Forms.KeyEventHandler(this.patern_KeyDown);
             this.patern.TextChanged += new System.EventHandler(this.patern_TextChanged);
             // 
             // materialLabel2
@@ -205,7 +208,6 @@
             // 
             // votetime
             // 
-            this.votetime.Interval = 1000;
             this.votetime.Tick += new System.EventHandler(this.votetime_Tick);
             // 
             // toplamoy
@@ -237,6 +239,7 @@
             this.Controls.Add(this.start);
             this.Controls.Add(this.link);
             this.Controls.Add(this.materialSingleLineTextField1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximumSize = new System.Drawing.Size(446, 394);
             this.MinimumSize = new System.Drawing.Size(446, 394);
             this.Name = "main";

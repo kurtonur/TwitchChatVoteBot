@@ -51,7 +51,7 @@ namespace TwitchChatV
                 tempBar.Name = "bar_"+ list[i];
                 tempBar.Size = new System.Drawing.Size(399, 23);
                 tempBar.TabIndex = 0;
-                tempBar.Value = 11;
+                tempBar.Value = 0;
                 
 
                 tempBarLabel.AutoSize = true;
